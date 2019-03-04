@@ -70,6 +70,7 @@ module MultiXml # rubocop:disable ModuleLength
     typecast_xml_value: true,
     disallowed_types: DISALLOWED_XML_TYPES,
     symbolize_keys: false,
+    undasherize_keys: true,
   }.freeze
 
   class << self
@@ -129,6 +130,8 @@ module MultiXml # rubocop:disable ModuleLength
     #
     # <tt>:disallowed_types</tt> :: Types to disallow from being typecasted. Defaults to `['yaml', 'symbol']`. Use `[]` to allow all types.
     #
+    # <tt>:undasherize_keys</tt> :: If true then keys will be undasherized
+    #
     # <tt>:typecast_xml_value</tt> :: If true, won't typecast values for parsed document
     def parse(xml, options = {}) # rubocop:disable AbcSize, CyclomaticComplexity, MethodLength, PerceivedComplexity
       xml ||= ''
@@ -143,7 +146,8 @@ module MultiXml # rubocop:disable ModuleLength
         return {} if char.nil?
         xml.ungetc(char)
 
-        hash = undasherize_keys(parser.parse(xml) || {})
+        hash = parser.parse(xml) || {}
+        hash = options[:undasherize_keys] ? undasherize_keys(hash) : hash
         hash = options[:typecast_xml_value] ? typecast_xml_value(hash, options[:disallowed_types]) : hash
       rescue DisallowedTypeError
         raise

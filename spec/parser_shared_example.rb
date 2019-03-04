@@ -155,6 +155,28 @@ shared_examples_for 'a parser' do |parser|
         end
       end
 
+      context 'with :undasherize_keys => false' do
+        context 'with dasherized tag' do
+          before do
+            @xml = '<tag-1/>'
+          end
+
+          it 'returns undasherize tag' do
+            expect(MultiXml.parse(@xml, undasherize_keys: false).keys).to include('tag-1')
+          end
+        end
+
+        context 'with dasherized attribute' do
+          before do
+            @xml = '<tag attribute-1="1"></tag>'
+          end
+
+          it 'returns undasherize attribute' do
+            expect(MultiXml.parse(@xml, undasherize_keys: false)['tag'].keys).to include('attribute-1')
+          end
+        end
+      end
+
       context 'with an attribute type="boolean"' do
         %w(true false).each do |boolean|
           context "when #{boolean}" do
